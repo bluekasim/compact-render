@@ -48,9 +48,13 @@ jobs:
       - name: Run tests
         run: npm test
 
-      # --provenance attaches a signed supply-chain attestation (needs id-token: write, above).
-      # Drop it if your npm token/account cannot issue provenance.
+      # Stray whitespace/newlines in the secret make "Bearer <token>" an illegal HTTP header value
+      # ("... is not a legal HTTP header value"); npm tokens contain no internal whitespace, so
+      # stripping all whitespace yields the clean token regardless of copy-paste artifacts.
       - name: Publish
-        run: npm publish --provenance --access public
+        run: |
+          TOKEN="${NODE_AUTH_TOKEN//[$'\t\r\n ']/}"
+          npm config set //registry.npmjs.org/:_authToken "$TOKEN"
+          npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
