@@ -1,0 +1,48 @@
+{
+  "name": "compact-render",
+  "version": "0.1.0",
+  "description": "Fail-closed compact renderer for structured LLM tool outputs: emit JSON, or switch to TOON columnar encoding only where it is measurably smaller under o200k.",
+  "keywords": [
+    "llm",
+    "token-optimization",
+    "toon",
+    "tool-output",
+    "agent",
+    "compression",
+    "json",
+    "mcp"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@toon-format/toon": "^4.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bluekasim/compact-render.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bluekasim/compact-render/issues"
+  },
+  "homepage": "https://github.com/bluekasim/compact-render#readme"
+}
