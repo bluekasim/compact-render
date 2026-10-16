@@ -1,6 +1,6 @@
 {
   "name": "compact-render",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fail-closed compact renderer for structured LLM tool outputs: emit JSON, or switch to TOON columnar encoding only where it is measurably smaller under o200k.",
   "keywords": [
     "llm",
