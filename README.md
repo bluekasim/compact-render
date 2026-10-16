@@ -1,5 +1,9 @@
 # compact-render
 
+[![npm version](https://img.shields.io/npm/v/compact-render.svg)](https://www.npmjs.com/package/compact-render)
+[![license](https://img.shields.io/npm/l/compact-render.svg)](./LICENSE)
+[![tests](https://github.com/bluekasim/compact-render/actions/workflows/publish.yml/badge.svg)](https://github.com/bluekasim/compact-render/actions/workflows/publish.yml)
+
 Fail-closed compact renderer for structured LLM tool outputs.
 
 Tool results are usually serialized as JSON, which repeats every object key on every row of a list.
@@ -99,6 +103,23 @@ multi-megabyte vocabulary on you.
   (Node `gpt-tokenizer` and Python `tiktoken`); both agree token-for-token.
 - These are estimates of what the model reads, not provider bills.
 - Thresholds are calibrated to the shapes above; re-measure if your output shapes differ.
+
+## Publishing
+
+Publishing is automated by [`.github/workflows/publish.yml`](./.github/workflows/publish.yml):
+
+1. Bump `version` in `package.json` and commit.
+2. Cut a GitHub Release whose tag matches that version (e.g. `v0.2.0` for `0.2.0`). The workflow
+   verifies the tag matches `package.json` before doing anything else.
+3. On release, CI runs `npm ci` + tests, then `npm publish --provenance --access public` to
+   **registry.npmjs.org** (the global registry, regardless of any local mirror config).
+
+Prereleases are skipped. You can also run it manually from the Actions tab (`workflow_dispatch`),
+which publishes whatever version is currently in `package.json`.
+
+One-time setup: add a repository secret **`NPM_TOKEN`** — an npm token with publish rights on
+npmjs.org (Settings → Secrets and variables → Actions → New repository secret). Without it the
+publish step fails. The workflow always targets npmjs.org even if your machine defaults to a mirror.
 
 ## License
 

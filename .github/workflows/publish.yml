@@ -1,0 +1,56 @@
+# Publish compact-render to npm.
+#
+# Trigger: publishing a GitHub Release, or a manual run (Actions -> Publish to npm -> Run workflow).
+# Auth:    set a repository secret `NPM_TOKEN` (an npm granular/classic token with publish rights
+#          on https://registry.npmjs.org). The token is injected via NODE_AUTH_TOKEN and never committed.
+# Registry: published explicitly to registry.npmjs.org (the global registry), regardless of any
+#          contributor's local mirror (e.g. npmmirror) config.
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # npm provenance attestation
+
+jobs:
+  publish:
+    name: Publish compact-render
+    runs-on: ubuntu-latest
+    # Always allow manual dispatch; skip prereleases otherwise.
+    if: github.event_name == 'workflow_dispatch' || github.event.release.prereleased == false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Guard against publishing a version that disagrees with the release tag (npm would reject
+      # a re-published or mismatched version). Only meaningful for release-triggered runs.
+      - name: Verify release tag matches package.json version
+        if: github.event_name == 'release'
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VER="v$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$VER" ]; then
+            echo "::error::Release tag '$TAG' does not match package.json version '$VER'."
+            exit 1
+          fi
+
+      - name: Install dependencies (locked)
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      # --provenance attaches a signed supply-chain attestation (needs id-token: write, above).
+      # Drop it if your npm token/account cannot issue provenance.
+      - name: Publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
